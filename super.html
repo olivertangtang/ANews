@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>SUPER控制中心</title>
+
+<style>
+
+body{
+    background:#0b1120;
+    color:white;
+    font-family:Arial,sans-serif;
+    padding:30px;
+}
+
+.card{
+    background:#111827;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+a{
+    color:#60a5fa;
+    text-decoration:none;
+}
+
+button{
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+}
+
+.green{
+    background:green;
+}
+
+.orange{
+    background:orange;
+}
+
+.red{
+    background:red;
+}
+
+select{
+    padding:8px;
+    border-radius:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>👑 SUPER控制中心</h1>
+
+<p>
+<a href="index.html">
+← 返回首頁
+</a>
+</p>
+
+<div id="dashboard" class="card"></div>
+
+<div id="userList"></div>
+
+<script>
+
+/* 權限 */
+
+const role =
+localStorage.getItem("currentRole");
+
+if(role !== "SUPER管理員"){
+
+alert("無權限");
+
+location.href="index.html";
+
+}
+
+/* 使用者 */
+
+let users =
+JSON.parse(
+localStorage.getItem("users")
+) || [];
+
+/* 新聞 */
+
+let news =
+JSON.parse(
+localStorage.getItem("news")
+) || [];
+
+/* 儀表板 */
+
+function renderDashboard(){
+
+let adminCount =
+users.filter(
+u => u.role==="管理員"
+).length;
+
+let reporterCount =
+users.filter(
+u => u.role==="記者"
+).length;
+
+let dadCount =
+users.filter(
+u => u.role==="爸爸"
+).length;
+
+let momCount =
+users.filter(
+u => u.role==="媽媽"
+).length;
+
+let bannedCount =
+users.filter(
+u => u.banned===true
+).length;
+
+document.getElementById(
+"dashboard"
+).innerHTML =
+
+`
+
+<h2>📊 系統儀表板</h2>
+
+<p>👥 使用者總數：${users.length}</p>
+
+<p>📰 新聞總數：${news.length}</p>
+
+<p>🛠 管理員：${adminCount}</p>
+
+<p>📰 記者：${reporterCount}</p>
+
+<p>👨 爸爸：${dadCount}</p>
+
+<p>👩 媽媽：${momCount}</p>
+
+<p>🚫 已封禁：${bannedCount}</p>
+
+`;
+
+}
+
+/* 使用者列表 */
+
+function renderUsers(){
+
+let html="";
+
+users.forEach((user,index)=>{
+
+let disable="";
+
+if(user.username==="super"){
+
+disable="disabled";
+
+}
+
+html += `
+
+<div class="card">
+
+<h3>${user.username}</h3>
+
+<p>
+角色：
+<b>${user.role}</b>
+</p>
+
+<p>
+狀態：
+<b>
+
+${user.banned
+? "🔴 已封禁"
+: "🟢 正常"}
+
+</b>
+</p>
+
+<select
+id="role${index}"
+${disable}
+>
+
+<option value="會員"
+${user.role==="會員"?"selected":""}>
+會員
+</option>
+
+<option value="記者"
+${user.role==="記者"?"selected":""}>
+記者
+</option>
+
+<option value="管理員"
+${user.role==="管理員"?"selected":""}>
+管理員
+</option>
+
+<option value="爸爸"
+${user.role==="爸爸"?"selected":""}>
+爸爸
+</option>
+
+<option value="媽媽"
+${user.role==="媽媽"?"selected":""}>
+媽媽
+</option>
+
+<option value="SUPER管理員"
+${user.role==="SUPER管理員"?"selected":""}>
+SUPER管理員
+</option>
+
+</select>
+
+<br><br>
+
+<button
+class="green"
+onclick="saveRole(${index})"
+${disable}
+>
+修改角色
+</button>
+
+<button
+class="orange"
+onclick="toggleBan(${index})"
+${disable}
+>
+${user.banned
+? "解除封禁"
+: "封禁"}
+</button>
+
+<button
+class="red"
+onclick="deleteUser(${index})"
+${disable}
+>
+刪除
+</button>
+
+</div>
+
+`;
+
+});
+
+document.getElementById(
+"userList"
+).innerHTML = html;
+
+}
+
+/* 修改角色 */
+
+function saveRole(index){
+
+let newRole =
+
+document.getElementById(
+"role"+index
+).value;
+
+users[index].role =
+newRole;
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+alert("角色已更新");
+
+renderDashboard();
+renderUsers();
+
+}
+
+/* 封禁 */
+
+function toggleBan(index){
+
+users[index].banned =
+!users[index].banned;
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+renderDashboard();
+renderUsers();
+
+}
+
+/* 刪除 */
+
+function deleteUser(index){
+
+if(
+users[index].username==="super"
+){
+
+alert("SUPER管理員不能刪除");
+
+return;
+
+}
+
+if(
+confirm(
+"確定刪除 "
++
+users[index].username
++
+" 嗎？"
+)
+){
+
+users.splice(index,1);
+
+localStorage.setItem(
+"users",
+JSON.stringify(users)
+);
+
+renderDashboard();
+renderUsers();
+
+}
+
+}
+
+/* 啟動 */
+
+renderDashboard();
+renderUsers();
+
+</script>
+
+</body>
+</html>

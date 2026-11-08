@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>註冊 - ANews</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0b1120;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+}
+
+.card{
+    width:400px;
+    background:#111827;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 0 30px rgba(37,99,235,.3);
+}
+
+.logo{
+    font-size:36px;
+    font-weight:bold;
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#94a3b8;
+    margin-bottom:30px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    margin-bottom:15px;
+    border:none;
+    border-radius:10px;
+    background:#1e293b;
+    color:white;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+.footer{
+    margin-top:20px;
+    text-align:center;
+}
+
+a{
+    color:#60a5fa;
+    text-decoration:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="logo">
+ANews
+</div>
+
+<div class="subtitle">
+建立新帳號
+</div>
+
+<input
+id="username"
+placeholder="帳號">
+
+<input
+id="password"
+type="password"
+placeholder="密碼">
+
+<button onclick="register()">
+註冊
+</button>
+
+<div class="footer">
+已有帳號？
+<a href="login.html">
+立即登入
+</a>
+</div>
+
+</div>
+
+<script>
+
+function register(){
+
+let user =
+document.getElementById("username").value;
+
+let pass =
+document.getElementById("password").value;
+
+if(user==="" || pass===""){
+
+alert("請輸入帳號和密碼");
+return;
+
+}
+
+let role = "會員";
+
+/* 唯一SUPER */
+
+if(user==="super"){
+
+role="SUPER管理員";
+
+}
+else if(user==="dad"){
+
+role="爸爸";
+
+}
+else if(user==="mom"){
+
+role="媽媽";
+
+}
+else if(user==="admin"){
+
+role="管理員";
+
+}
+else if(user==="reporter"){
+
+role="記者";
+
+}
+
+/* 讀取所有使用者 */
+
+let users =
+JSON.parse(
+localStorage.getItem("users")
+) || [];
+
+/* 新增使用者 */
+
+users.push({
+
+username:user,
+
+password:pass,
+
+role:role,
+
+banned:false
+
+});
+
+/* 儲存 */
+
+localStorage.setItem(
+
+"users",
+
+JSON.stringify(users)
+
+);
+
+alert("註冊成功");
+
+window.location.href =
+"login.html";
+
+}
+
+</script>
+
+</body>
+</html>

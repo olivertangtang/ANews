@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANews</title>
+
+<style>
+
+body{
+    background:#0b1120;
+    color:white;
+    margin:0;
+    font-family:Arial,sans-serif;
+}
+
+header{
+    background:#111827;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:28px;
+    font-weight:bold;
+}
+
+.user-box{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.container{
+    display:grid;
+    grid-template-columns:250px 1fr 300px;
+    gap:20px;
+    padding:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+}
+
+.news{
+    margin-bottom:20px;
+}
+
+.city{
+    color:#60a5fa;
+    font-size:14px;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
+}
+
+a{
+    text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<script>
+
+if(localStorage.getItem("loggedIn")!=="true"){
+
+location.href="login.html";
+
+}
+
+</script>
+
+<header>
+
+<div class="logo">
+ANews
+</div>
+
+<div class="user-box">
+
+<span id="welcome"></span>
+
+<a href="super.html">
+<button>👑 控制台</button>
+</a>
+
+<a href="publish.html">
+<button>📰 發布新聞</button>
+</a>
+
+<a href="news-manager.html">
+<button>📋 新聞管理</button>
+</a>
+
+<button onclick="logout()">
+登出
+</button>
+
+</div>
+
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h3>🔥 熱門排行</h3>
+
+<p>1. A市智慧交通</p>
+<p>2. B市新能源園區</p>
+<p>3. C市AI政務</p>
+
+</div>
+
+<div>
+
+<div id="dynamicNews"></div>
+
+<div class="card news">
+<div class="city">A市</div>
+<h2>智慧交通系統啟用</h2>
+<p>全市交通進入 AI 時代。</p>
+</div>
+
+<div class="card news">
+<div class="city">B市</div>
+<h2>新能源園區開工</h2>
+<p>第一期投資120億元。</p>
+</div>
+
+<div class="card news">
+<div class="city">C市</div>
+<h2>AI政務平台上線</h2>
+<p>超過200項業務可線上辦理。</p>
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>🤖 AI 摘要</h3>
+
+<p>
+今日新聞主要集中在智慧交通、
+新能源投資與AI政務建設。
+</p>
+
+</div>
+
+</div>
+
+<script>
+
+const user =
+localStorage.getItem("currentUser");
+
+const role =
+localStorage.getItem("currentRole");
+
+/* 顯示身份 */
+
+if(role==="SUPER管理員"){
+
+document.getElementById("welcome")
+.innerHTML =
+"👑 " + user + "【SUPER管理員】";
+
+}else{
+
+document.getElementById("welcome")
+.innerHTML =
+"👤 " + user + "【" + role + "】";
+
+}
+
+/* 登出 */
+
+function logout(){
+
+localStorage.removeItem("loggedIn");
+localStorage.removeItem("currentUser");
+localStorage.removeItem("currentRole");
+
+location.href="login.html";
+
+}
+
+/* 新聞 */
+
+let news =
+JSON.parse(
+localStorage.getItem("news")
+) || [];
+
+let newsHtml = "";
+
+news.slice().reverse().forEach((item,index)=>{
+
+let canView = false;
+
+if(item.permission==="公開"){
+
+canView = true;
+
+}
+
+if(
+item.permission==="爸爸"
+&&
+(
+role==="爸爸"
+||
+role==="SUPER管理員"
+)
+){
+
+canView = true;
+
+}
+
+if(
+item.permission==="媽媽"
+&&
+(
+role==="媽媽"
+||
+role==="SUPER管理員"
+)
+){
+
+canView = true;
+
+}
+
+if(
+item.permission==="管理員"
+&&
+(
+role==="管理員"
+||
+role==="SUPER管理員"
+)
+){
+
+canView = true;
+
+}
+
+if(
+item.permission==="SUPER管理員"
+&&
+role==="SUPER管理員"
+){
+
+canView = true;
+
+}
+
+if(canView){
+
+newsHtml += `
+
+<div class="card news">
+
+<div class="city">
+${item.city}
+</div>
+
+<h2>
+${item.title}
+</h2>
+
+<p>
+${item.content}
+</p>
+
+<p>
+🔒 ${item.permission}
+</p>
+
+<small>
+${item.date}
+</small>
+
+<hr>
+
+<h4>💬 留言區</h4>
+
+<div id="comments${index}">
+</div>
+
+<input
+id="commentInput${index}"
+placeholder="輸入留言">
+
+<button
+onclick="addComment(${index})">
+送出留言
+</button>
+
+</div>
+
+`;
+
+}
+
+});
+
+document.getElementById(
+"dynamicNews"
+).innerHTML =
+newsHtml;
+
+/* 留言 */
+
+function addComment(newsId){
+
+let input =
+document.getElementById(
+"commentInput"+newsId
+);
+
+let text =
+input.value.trim();
+
+if(text==="") return;
+
+let comments =
+JSON.parse(
+localStorage.getItem("comments")
+) || {};
+
+if(!comments[newsId]){
+
+comments[newsId]=[];
+
+}
+
+comments[newsId].push({
+
+user:
+localStorage.getItem(
+"currentUser"
+),
+
+text:text,
+
+time:new Date()
+.toLocaleString()
+
+});
+
+localStorage.setItem(
+"comments",
+JSON.stringify(comments)
+);
+
+input.value="";
+
+renderComments(newsId);
+
+}
+
+function renderComments(newsId){
+
+let comments =
+JSON.parse(
+localStorage.getItem("comments")
+) || {};
+
+let html="";
+
+(comments[newsId] || [])
+.forEach(comment=>{
+
+html += `
+
+<div style="
+background:#0f172a;
+padding:10px;
+margin-top:8px;
+border-radius:8px;
+">
+
+<b>
+${comment.user}
+</b>
+
+<br>
+
+${comment.text}
+
+<br>
+
+<small>
+${comment.time}
+</small>
+
+</div>
+
+`;
+
+});
+
+let area =
+document.getElementById(
+"comments"+newsId
+);
+
+if(area){
+
+area.innerHTML = html;
+
+}
+
+}
+
+for(let i=0;i<news.length;i++){
+
+renderComments(i);
+
+}
+
+</script>
+
+</body>
+
+</html>

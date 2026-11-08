@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>新聞管理中心</title>
+
+<style>
+
+body{
+    background:#0b1120;
+    color:white;
+    font-family:Arial,sans-serif;
+    padding:30px;
+}
+
+.card{
+    background:#111827;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+
+button{
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.edit{
+    background:green;
+}
+
+.delete{
+    background:red;
+}
+
+a{
+    color:#60a5fa;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>📰 新聞管理中心</h1>
+
+<p>
+<a href="index.html">
+← 返回首頁
+</a>
+</p>
+
+<div id="newsList"></div>
+
+<script>
+
+/* 權限 */
+
+const role =
+localStorage.getItem("currentRole");
+
+if(role !== "SUPER管理員"){
+
+alert("無權限");
+
+location.href="index.html";
+
+}
+
+/* 新聞 */
+
+let news =
+JSON.parse(
+localStorage.getItem("news")
+) || [];
+
+/* 顯示 */
+
+renderNews();
+
+function renderNews(){
+
+let html = "";
+
+news.forEach((item,index)=>{
+
+html += `
+
+<div class="card">
+
+<h2>${item.title}</h2>
+
+<p>城市：${item.city}</p>
+
+<p>${item.content}</p>
+
+<p>權限：${item.permission}</p>
+
+<small>${item.date}</small>
+
+<br><br>
+
+<button
+class="edit"
+onclick="editNews(${index})">
+
+編輯
+
+</button>
+
+<button
+class="delete"
+onclick="deleteNews(${index})">
+
+刪除
+
+</button>
+
+</div>
+
+`;
+
+});
+
+document.getElementById(
+"newsList"
+).innerHTML = html;
+
+}
+
+/* 編輯 */
+
+function editNews(index){
+
+let newTitle = prompt(
+"修改標題",
+news[index].title
+);
+
+if(newTitle===null) return;
+
+let newContent = prompt(
+"修改內容",
+news[index].content
+);
+
+if(newContent===null) return;
+
+news[index].title =
+newTitle;
+
+news[index].content =
+newContent;
+
+localStorage.setItem(
+"news",
+JSON.stringify(news)
+);
+
+alert("修改成功");
+
+renderNews();
+
+}
+
+/* 刪除 */
+
+function deleteNews(index){
+
+if(
+confirm(
+"確定刪除這篇新聞嗎？"
+)
+){
+
+news.splice(index,1);
+
+localStorage.setItem(
+"news",
+JSON.stringify(news)
+);
+
+renderNews();
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

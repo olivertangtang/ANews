@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>登入 - ANews</title>
+
+<style>
+
+body{
+    background:#0b1120;
+    color:white;
+    font-family:Arial,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.box{
+    background:#111827;
+    padding:30px;
+    border-radius:15px;
+    width:300px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:none;
+    border-radius:8px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+}
+
+a{
+    color:#60a5fa;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="box">
+
+<h2>登入 ANews</h2>
+
+<input
+id="username"
+placeholder="帳號">
+
+<input
+id="password"
+type="password"
+placeholder="密碼">
+
+<button onclick="login()">
+登入
+</button>
+
+<p>
+還沒有帳號？
+<a href="register.html">立即註冊</a>
+</p>
+
+</div>
+
+<script>
+
+function login(){
+
+let user =
+document.getElementById("username").value;
+
+let pass =
+document.getElementById("password").value;
+
+/* 讀取所有使用者 */
+
+let users =
+JSON.parse(
+localStorage.getItem("users")
+) || [];
+
+/* 尋找使用者 */
+
+let found =
+users.find(
+
+u =>
+
+u.username===user
+
+&&
+
+u.password===pass
+
+);
+
+/* 登入 */
+
+if(found){
+
+if(found.banned){
+
+alert("您的帳號已被封禁");
+
+return;
+
+}
+
+localStorage.setItem(
+"loggedIn",
+"true"
+);
+
+localStorage.setItem(
+"currentUser",
+found.username
+);
+
+localStorage.setItem(
+"currentRole",
+found.role
+);
+
+alert("登入成功！");
+
+window.location.href=
+"index.html";
+
+}
+else{
+
+alert("帳號或密碼錯誤");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
